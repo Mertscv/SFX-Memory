@@ -22,14 +22,15 @@ export const formatDuration = (seconds: number): string => {
     return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
-export const suggestCategory = (fileName: string): string => {
+export const suggestTags = (fileName: string): string[] => {
     const name = fileName.toLowerCase();
+    const tags: string[] = [];
 
-    if (name.includes('whoosh') || name.includes('transition') || name.includes('swoosh')) return 'Transition';
-    if (name.includes('hit') || name.includes('impact') || name.includes('boom')) return 'Impact';
-    if (name.includes('ambient') || name.includes('atmosphere') || name.includes('bg')) return 'Ambience';
-    if (name.includes('click') || name.includes('ui') || name.includes('button')) return 'UI';
-    if (name.includes('foley') || name.includes('step')) return 'Foley';
+    if (name.includes('whoosh') || name.includes('swoosh') || name.includes('transition')) tags.push('transition');
+    if (name.includes('hit') || name.includes('impact') || name.includes('boom') || name.includes('punch')) tags.push('impact');
+    if (name.includes('ambient') || name.includes('atmosphere')) tags.push('ambience');
+    if (name.includes('click') || name.includes('ui')) tags.push('ui');
+    if (name.includes('funny') || name.includes('laugh')) tags.push('funny');
 
-    return 'Uncategorized';
+    return tags;
 };

@@ -53,25 +53,6 @@ export const EditModal: React.FC<EditModalProps> = ({ sound, onSave, onClose, on
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-zinc-400 mb-1">Category</label>
-                        <input
-                            type="text"
-                            list="categories"
-                            value={formData.category}
-                            onChange={e => setFormData({ ...formData, category: e.target.value })}
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
-                        />
-                        <datalist id="categories">
-                            <option value="Transition" />
-                            <option value="Impact" />
-                            <option value="Ambience" />
-                            <option value="UI" />
-                            <option value="Foley" />
-                            <option value="Voice" />
-                        </datalist>
-                    </div>
-
-                    <div>
                         <label className="block text-sm font-medium text-zinc-400 mb-1">Notes</label>
                         <textarea
                             value={formData.notes}

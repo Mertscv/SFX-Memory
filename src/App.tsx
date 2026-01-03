@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Upload, Search, Music, Volume2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import clsx from 'clsx';
 import { type Sound, addSound, getAllSounds, updateSound, deleteSound } from './db/db';
-import { getAudioDuration, suggestCategory } from './services/audioUtils';
+import { getAudioDuration, suggestTags } from './services/audioUtils';
 import { SoundCard } from './components/SoundCard';
 import { EditModal } from './components/EditModal';
 
@@ -11,6 +12,7 @@ function App() {
   const [editingSound, setEditingSound] = useState<Sound | null>(null);
   const [playState, setPlayState] = useState<{ id: string | null; url: string | null }>({ id: null, url: null });
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -26,6 +28,17 @@ function App() {
     setSounds(loaded.sort((a, b) => b.createdAt - a.createdAt));
   };
 
+  // Extract unique tags and sort them
+  const allTags = Array.from(new Set(sounds.flatMap(s => s.tags))).sort();
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev =>
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
+
   const handleFileUpload = async (files: FileList | null) => {
     if (!files) return;
 
@@ -35,14 +48,15 @@ function App() {
 
       try {
         const duration = await getAudioDuration(file);
+        const tags = suggestTags(file.name);
+
         const newSound: Sound = {
           id: uuidv4(),
           file: file,
           fileName: file.name,
           name: file.name.replace(/\.[^/.]+$/, ""),
-          category: suggestCategory(file.name),
           duration,
-          tags: [],
+          tags: tags,
           notes: '',
           createdAt: Date.now()
         };
@@ -92,36 +106,89 @@ function App() {
     loadSounds();
   };
 
-  // Filter sounds
-  const filteredSounds = sounds.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  // Filter sounds based on search query AND selected tags
+  const filteredSounds = sounds.filter(s => {
+    const matchesSearch =
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      s.tags.some(t => t.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      s.notes.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesTags = selectedTags.length === 0 ||
+      (selectedTags.includes('Untagged')
+        ? s.tags.length === 0
+        : selectedTags.every(tag => s.tags.includes(tag)));
+
+    return matchesSearch && matchesTags;
+  });
 
   return (
-    <div className="flex h-screen bg-[#121212] text-white font-sans overflow-hidden">
-      {/* Sidebar - Quick Filters (Mock) */}
+    <div className="flex h-screen w-full bg-[#121212] text-white font-sans overflow-hidden">
+      {/* Sidebar - Dynamic Tag Filters */}
       <aside className="w-64 bg-[#181818] border-r border-[#282828] p-4 hidden md:flex flex-col">
         <h1 className="text-xl font-bold flex items-center gap-2 mb-8 text-indigo-400">
           <Volume2 className="w-6 h-6" />
           SFX Memory
         </h1>
 
-        <nav className="space-y-1">
-          <button className="w-full text-left px-3 py-2 rounded-md bg-indigo-500/10 text-indigo-400 font-medium">
-            All Sounds <span className="float-right text-xs opacity-60 mt-1">{sounds.length}</span>
-          </button>
-          {['Transition', 'Impact', 'Ambience', 'UI', 'Foley'].map(cat => (
-            <button key={cat} className="w-full text-left px-3 py-2 rounded-md text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors">
-              {cat}
-            </button>
-          ))}
-        </nav>
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-3 px-3">
+            Filters
+          </h2>
 
-        <div className="mt-auto">
+          <nav className="space-y-1 overflow-y-auto pr-2 custom-scrollbar">
+            <button
+              onClick={() => setSelectedTags([])}
+              className={clsx(
+                "w-full text-left px-3 py-2 rounded-md text-sm font-medium transition-colors",
+                selectedTags.length === 0 ? "bg-indigo-500/10 text-indigo-400" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              )}
+            >
+              All Sounds <span className="float-right text-xs opacity-60 mt-0.5">{sounds.length}</span>
+            </button>
+
+            {/* Special Untagged Filter */}
+            <button
+              onClick={() => toggleTag('Untagged')}
+              className={clsx(
+                "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                selectedTags.includes('Untagged') ? "bg-indigo-500/10 text-indigo-400" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+              )}
+            >
+              Untagged <span className="float-right text-xs opacity-60 mt-0.5">{sounds.filter(s => s.tags.length === 0).length}</span>
+            </button>
+
+            <div className="h-4" /> {/* Spacer */}
+
+            <h2 className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest mb-2 px-3">
+              Tags
+            </h2>
+
+            {allTags.map(tag => (
+              <button
+                key={tag}
+                onClick={() => toggleTag(tag)}
+                className={clsx(
+                  "w-full text-left px-3 py-1.5 rounded-md text-sm transition-colors flex items-center justify-between group",
+                  selectedTags.includes(tag) ? "bg-indigo-500/20 text-indigo-300" : "text-zinc-400 hover:bg-zinc-800 hover:text-white"
+                )}
+              >
+                <span className="truncate">#{tag}</span>
+                <span className="text-[10px] opacity-40 group-hover:opacity-60 transition-opacity">
+                  {sounds.filter(s => s.tags.includes(tag)).length}
+                </span>
+              </button>
+            ))}
+
+            {allTags.length === 0 && !selectedTags.includes('Untagged') && (
+              <p className="px-3 py-2 text-xs text-zinc-600 italic">No tags yet...</p>
+            )}
+          </nav>
+        </div>
+
+        <div className="mt-auto pt-4">
           <div className="p-4 bg-zinc-900 rounded-lg border border-zinc-800 text-center">
-            <p className="text-xs text-zinc-500 mb-2">Drag mp3/wav files here to add to library</p>
+            <p className="text-[10px] text-zinc-500">Drag mp3/wav files here</p>
           </div>
         </div>
       </aside>
@@ -176,6 +243,7 @@ function App() {
                   onEdit={setEditingSound}
                   onPlay={handlePlay}
                   isPlaying={playState.id === sound.id}
+                  onUpdate={loadSounds}
                 />
               ))}
             </div>

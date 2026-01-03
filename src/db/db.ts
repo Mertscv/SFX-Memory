@@ -5,7 +5,7 @@ export interface Sound {
     fileName: string;
     file: Blob;
     name: string;
-    category: string;
+    category?: string;
     duration: number;
     tags: string[];
     notes: string;
