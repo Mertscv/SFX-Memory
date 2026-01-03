@@ -1,4 +1,7 @@
+🇹🇷 **Türkçe README için:** [Buraya tıklayın](./READMETR.md)
+
 # SFX Memory
+
 
 A **personal, tag-based sound effect (SFX) memory panel** built for video editors.
 
