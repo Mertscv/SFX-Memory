@@ -1,73 +1,106 @@
-# React + TypeScript + Vite
+# SFX Memory
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A **personal, tag-based sound effect (SFX) memory panel** built for video editors.
 
-Currently, two official plugins are available:
+SFX Memory helps you collect, recall, and instantly preview sound effects during editing. Instead of rigid category systems, it uses a **flexible tag-based structure** that matches how editors actually think.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 🎯 Purpose
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Over time, editors download and accumulate many sound effects. Even when files are renamed, it becomes difficult to remember:
 
-## Expanding the ESLint configuration
+* What this sound was
+* Where it was used
+* What kind of feeling it created
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+**SFX Memory** is designed as a personal workflow tool to solve this problem. It doesn’t just store sounds — it helps you **remember why and how you used them**.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## ✨ Features
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+* 🎧 Import mp3 / wav files
+* ▶️ Instant one-click playback
+* 🏷️ Add and remove unlimited tags
+* 📝 Usage notes for each sound
+* 🔍 Search by name, tags, and notes
+* 🧹 Clean UI without category clutter
+* 💾 All data stored locally in the browser
+* 🚫 No backend, no accounts, no internet required
+
+---
+
+## 🏷️ Why No Categories?
+
+Fixed categories like Transition or Impact create unnecessary mental overhead during editing.
+
+SFX Memory focuses on a different question:
+
+> “In what context did this sound work well?”
+
+That’s why the system is entirely **tag-based**. Tags are flexible, personal, and adapt to your editing style.
+
+---
+
+## 🚀 Installation & Usage (npm)
+
+### Requirements
+
+* Node.js (LTS recommended)
+* npm
+
+### Install Dependencies
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Run Development Server
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Open in your browser:
+
+```
+http://localhost:3000
+```
+
+*(Port may vary depending on configuration.)*
+
+### Production Build
+
+```bash
+npm run build
+npm run start
+```
+
+---
+
+## 📁 Data Storage
+
+Sound names, tags, notes, and duration data are stored **locally only**.
+
+Storage methods:
+
+* JSON / IndexedDB (depending on implementation)
+
+No data is sent anywhere.
+
+---
+
+## 🧠 Project Philosophy
+
+* Personal workflow over generic tools
+* Simplicity over feature bloat
+* This is a memory aid, not just storage
+
+---
+
+## 📜 License
+
+MIT License
+
+Feel free to use, modify, and share.
